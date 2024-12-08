@@ -65,10 +65,10 @@ agent: |
 
   Current time: {current_time}
 
-  Recent memory (from earliest to latest):
+  Recent working memory:
   {working_memory}
 
-  Long term memory:
+  Relevant long-term memories:
   {long_term_memory}
 
   Your current planning:
