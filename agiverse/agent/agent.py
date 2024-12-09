@@ -246,7 +246,7 @@ class Agent:
         if hasattr(self, '_tasks'):
             await asyncio.gather(*self._tasks, return_exceptions=True)
 
-    async def _handle_model_response(self, response: Dict) -> None:
+    async def _handle_model_response(self, response: Dict, state_data: Dict) -> None:
         thought = response.get('thought')
         action = response.get('action')
         action_input = response.get('actionInput')
@@ -257,8 +257,12 @@ class Agent:
             "system_message_reply": response.get('systemMessageReplyAction'),
             "timestamp": datetime.now().isoformat()
         }
-        
-
+        metadata.update({
+                    "location": {
+                        "locationX": state_data.get('locationX'),
+                        "locationY": state_data.get('locationY')
+                    }
+                })
         await self.working_memory.add_step(
             thought=thought,
             action=action,
