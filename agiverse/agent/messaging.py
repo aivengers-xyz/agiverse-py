@@ -21,7 +21,7 @@ from .utils import (
     format_json,
     format_memory,
 )
-from ..memory_module.memory.base import Memory
+from .memory.base import Memory
 
 logger = logging.getLogger(__name__)
 

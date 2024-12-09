@@ -9,11 +9,11 @@ from .summary import Summarizer
 from datetime import datetime
 from .utils import load_prompt, load_all_prompts
 from ..common.const import DEFAULT_WS_ENDPOINT, DEFAULT_API_ENDPOINT
-from ..memory_module.memory.manager import MemoryManager
-from ..memory_module.memory.importance import ImportanceCalculator
-from ..memory_module.memory.embedding import EmbeddingGenerator
-from ..memory_module.memory.working_memory import WorkingMemory
-from ..memory_module.memory.base import Memory
+from .memory.manager import MemoryManager
+from .memory.importance import ImportanceCalculator
+from .memory.embedding import EmbeddingGenerator
+from .memory.working_memory import WorkingMemory
+from .memory.base import Memory
 
 logger = logging.getLogger(__name__)
 
