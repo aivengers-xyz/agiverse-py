@@ -50,7 +50,11 @@ class MessagingHandler:
         self.action_id = int(time.time() * 1000)
 
     async def connect(self, uri):
-        self.websocket = await websockets.connect(uri)
+        self.websocket = await websockets.connect(
+            uri,
+            ping_interval=20,
+            ping_timeout=30,
+        )
         return self
 
     async def __aenter__(self):

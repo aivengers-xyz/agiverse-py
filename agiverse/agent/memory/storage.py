@@ -106,25 +106,35 @@ class LocalStorage:
             return True
         return False
 
-    async def list_all_memories(self, limit: int = 1000) -> List[Memory]:
+    async def list_all_memories(self, limit: int = 256) -> List[Memory]:
         files_with_times = []
-        for filename in os.listdir(self.persist_directory):
-            if filename.endswith(".json"):
-                file_path = os.path.join(self.persist_directory, filename)
-                files_with_times.append((
-                    filename,
-                    os.path.getmtime(file_path)
-                ))
+        try:
+            with os.scandir(self.persist_directory) as entries:
+                for entry in entries:
+                    if entry.name.endswith('.json'):
+                        files_with_times.append((
+                            entry.name,
+                            entry.stat().st_mtime
+                        ))
+                        if len(files_with_times) >= limit * 2:
+                            break
+        except Exception as e:
+            print(f"Error scanning directory: {e}")
+            return []
 
         sorted_files = sorted(files_with_times, key=lambda x: x[1], reverse=True)[:limit]
 
-        tasks = []
-        for filename, _ in sorted_files:
-            memory_id = filename[:-5]
-            tasks.append(self.load_memory(memory_id))
+        chunk_size = 50
+        memories = []
+        for i in range(0, len(sorted_files), chunk_size):
+            chunk = sorted_files[i:i + chunk_size]
+            tasks = [self.load_memory(filename[:-5]) for filename, _ in chunk]
+            chunk_memories = await asyncio.gather(*tasks)
+            memories.extend([m for m in chunk_memories if m is not None])
+            if len(memories) >= limit:
+                break
 
-        memories = await asyncio.gather(*tasks)
-        return [m for m in memories if m is not None]
+        return memories[:limit]
 
     async def clear_all(self) -> None:
         for filename in os.listdir(self.persist_directory):
