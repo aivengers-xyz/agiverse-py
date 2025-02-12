@@ -106,12 +106,22 @@ class LocalStorage:
             return True
         return False
 
-    async def list_all_memories(self) -> List[Memory]:
-        tasks = []
+    async def list_all_memories(self, limit: int = 1000) -> List[Memory]:
+        files_with_times = []
         for filename in os.listdir(self.persist_directory):
             if filename.endswith(".json"):
-                memory_id = filename[:-5]
-                tasks.append(self.load_memory(memory_id))
+                file_path = os.path.join(self.persist_directory, filename)
+                files_with_times.append((
+                    filename,
+                    os.path.getmtime(file_path)
+                ))
+
+        sorted_files = sorted(files_with_times, key=lambda x: x[1], reverse=True)[:limit]
+
+        tasks = []
+        for filename, _ in sorted_files:
+            memory_id = filename[:-5]
+            tasks.append(self.load_memory(memory_id))
 
         memories = await asyncio.gather(*tasks)
         return [m for m in memories if m is not None]
